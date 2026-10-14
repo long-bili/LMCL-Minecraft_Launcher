@@ -1,0 +1,156 @@
+<pages:PageBase x:Class="LMCL.App.Views.Pages.ToolsPage"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:pages="clr-namespace:LMCL.App.Views.Pages"
+               FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+               Foreground="{DynamicResource TextBrush}">
+
+  <Grid x:Name="PageRoot" Margin="24,16,20,16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <!-- ══ 标题 ══════════════════════════════════════════ -->
+    <Grid Grid.Row="0" x:Name="PageHeader" Margin="0,0,6,14">
+      <TextBlock x:Name="PageTitleText" Text="工具" Style="{StaticResource PageTitle}" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+        <TextBlock Text="目标版本" Style="{StaticResource SecondaryText}"
+                   VerticalAlignment="Center" Margin="0,0,8,0" />
+        <ComboBox x:Name="VersionCombo" Style="{StaticResource Combo}" Width="260"
+                  MaxDropDownHeight="320" />
+      </StackPanel>
+    </Grid>
+
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ══ 启动参数 ════════════════════════════════ -->
+        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,6,12">
+          <StackPanel>
+            <TextBlock Text="启动参数" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,8,0,0"
+                       Text="把当前版本真正会用的 JVM 与游戏参数原样拼出来。排查启动不了、加内存改了没生效这类问题，看这个最快。" />
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <Button Style="{StaticResource BaseButton}" Content="生成并查看"
+                      Click="Command_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 日志分析 ════════════════════════════════ -->
+        <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Card}" Margin="6,0,0,12">
+          <StackPanel>
+            <TextBlock Text="日志分析" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,8,0,0"
+                       Text="读游戏自己写的 latest.log，按常见报错模式给出人话解释——缺 Java、内存不足、模组冲突、正版验证失败都会认出来。" />
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <Button Style="{StaticResource BaseButton}" Content="分析最新日志"
+                      Click="Analyze_Click" />
+              <Button Style="{StaticResource SubtleButton}" Content="打开日志目录"
+                      Margin="8,0,0,0" Click="OpenGameLogDir_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 启动器日志 ══════════════════════════════ -->
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,6,12">
+          <StackPanel>
+            <TextBlock Text="启动器日志" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,8,0,0"
+                       Text="把「主页」里那份日志（含每个文件的下载过程、镜像回退记录）导出成文件，或者直接复制走。" />
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <Button Style="{StaticResource BaseButton}" Content="导出到文件"
+                      Click="ExportLog_Click" />
+              <Button Style="{StaticResource SubtleButton}" Content="复制全部"
+                      Margin="8,0,0,0" Click="CopyLog_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 缓存 ════════════════════════════════════ -->
+        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Card}" Margin="6,0,0,12">
+          <StackPanel>
+            <TextBlock Text="缓存" Style="{StaticResource SectionTitle}" />
+            <TextBlock x:Name="CacheText" Style="{StaticResource SecondaryText}" Margin="0,8,0,0"
+                       Text="整合包下载过程中留下的临时文件都放这儿，删掉不影响已经装好的版本。" />
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <Button Style="{StaticResource BaseButton}" Content="查看大小" Click="CacheSize_Click" />
+              <Button Style="{StaticResource SubtleButton}" Content="清理缓存" Margin="8,0,0,0"
+                      Click="CleanCache_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 目录 ════════════════════════════════════ -->
+        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,6,12">
+          <StackPanel>
+            <TextBlock Text="打开目录" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,8,0,0"
+                       Text="启动器的数据目录放的是设置、账号、日志和缓存，跟游戏目录是分开的。" />
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <Button Style="{StaticResource BaseButton}" Content="启动器目录"
+                      Click="OpenRoot_Click" />
+              <Button Style="{StaticResource SubtleButton}" Content="游戏目录" Margin="8,0,0,0"
+                      Click="OpenGame_Click" />
+              <Button Style="{StaticResource SubtleButton}" Content="日志目录" Margin="8,0,0,0"
+                      Click="OpenLogDir_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 检查更新 ════════════════════════════════ -->
+        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource Card}" Margin="6,0,0,12">
+          <StackPanel>
+            <TextBlock Text="检查更新" Style="{StaticResource SectionTitle}" />
+            <TextBlock x:Name="UpdateText" Style="{StaticResource SecondaryText}" Margin="0,8,0,0"
+                       Text="按「设置」里填的更新清单地址检查新版本。下载下来的包只会放到 update 目录并打开位置，绝不会自己替换正在运行的程序。" />
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <Button Style="{StaticResource BaseButton}" Content="检查更新" Click="Update_Click" />
+              <Button Style="{StaticResource SubtleButton}" Content="打开更新目录"
+                      Margin="8,0,0,0" Click="OpenUpdateDir_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 系统信息 ════════════════════════════════ -->
+        <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,6,12">
+          <StackPanel>
+            <TextBlock Text="系统信息" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,8,0,0"
+                       Text="出问题反馈的时候，把这些信息一起贴上，别人一眼就能看出环境差异。" />
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <Button Style="{StaticResource BaseButton}" Content="查看并复制"
+                      Click="SystemInfo_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 崩溃日志 ════════════════════════════════ -->
+        <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource Card}" Margin="6,0,0,12">
+          <StackPanel>
+            <TextBlock Text="崩溃日志与自检" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,8,0,0"
+                       Text="启动器自己崩了会把堆栈写在 logs 目录下的 crash-*.log 里。界面自检则会把每一页都构造一遍，确认没有页面是打不开的。" />
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <Button Style="{StaticResource BaseButton}" Content="查看崩溃日志"
+                      Click="Crashes_Click" />
+              <Button Style="{StaticResource SubtleButton}" Content="界面自检" Margin="8,0,0,0"
+                      Click="SelfCheck_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </ScrollViewer>
+  </Grid>
+</pages:PageBase>

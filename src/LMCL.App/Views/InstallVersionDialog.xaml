@@ -1,0 +1,112 @@
+<Window x:Class="LMCL.App.Views.InstallVersionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="安装版本" Width="460" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" ResizeMode="NoResize"
+        Background="{DynamicResource WindowBrush}"
+        FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+        Foreground="{DynamicResource TextBrush}"
+        FocusManager.FocusedElement="{Binding ElementName=BtnInstall}">
+
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="6" CornerRadius="0"
+                        GlassFrameThickness="-1" UseAeroCaptionButtons="False" />
+  </shell:WindowChrome.WindowChrome>
+
+  <Border Background="Transparent"
+          BorderBrush="{DynamicResource StrokeBrush}" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="40" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- 标题栏 -->
+      <Grid Grid.Row="0">
+        <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center"
+                    IsHitTestVisible="False">
+          <TextBlock Text="&#xE896;" FontFamily="{DynamicResource IconFont}" FontSize="14"
+                     Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" />
+          <TextBlock Text="安装版本" FontSize="13" FontWeight="SemiBold" Margin="8,0,0,0"
+                     VerticalAlignment="Center" />
+        </StackPanel>
+        <Button Style="{StaticResource CaptionCloseButton}" Content="&#xE8BB;"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                Click="Cancel_Click" ToolTip="关闭" />
+      </Grid>
+
+      <!-- 目标版本 + 加载器选择 -->
+      <StackPanel Grid.Row="1" Margin="20,6,20,16">
+        <TextBlock x:Name="TargetName" Text="—" FontSize="19" FontWeight="SemiBold" />
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+          <Border Style="{StaticResource Chip}">
+            <TextBlock x:Name="TargetType" Text="—" Style="{StaticResource ChipText}" />
+          </Border>
+          <TextBlock x:Name="TargetDate" Style="{StaticResource CaptionText}"
+                     Margin="10,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <Border Style="{StaticResource Divider}" Margin="0,16,0,14" />
+
+        <TextBlock Text="加载器" Style="{StaticResource SecondaryText}" />
+        <ComboBox x:Name="LoaderCombo" Style="{StaticResource Combo}"
+                  HorizontalAlignment="Left" Width="260" Margin="0,6,0,0"
+                  SelectionChanged="Loader_Changed" />
+
+        <TextBlock Text="加载器版本" Style="{StaticResource SecondaryText}" Margin="0,14,0,0" />
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+          <ComboBox x:Name="LoaderVersionCombo" Style="{StaticResource Combo}"
+                    Width="260" MaxDropDownHeight="280" />
+          <Button x:Name="BtnReloadLoader" Style="{StaticResource SubtleButton}"
+                  Content="刷新" Margin="8,0,0,0" Click="ReloadLoader_Click" />
+        </StackPanel>
+        <TextBlock x:Name="LoaderHint" Style="{StaticResource CaptionText}"
+                   Margin="0,8,0,0" TextWrapping="Wrap" />
+
+        <!--
+          装加载器时会自动带上原版，所以装完 versions 目录里会有两个条目
+          （比如 1.20.1 和 fabric-loader-0.19.5-1.20.1）。先说明白，
+          免得用户以为装重了、把原版删掉——删了加载器版本就起不来了。
+        -->
+        <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+          <StackPanel>
+            <TextBlock Text="关于加载器" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"
+                       Text="· 依赖库、资源文件和加载器都会优先走你在「设置」里选的下载源，源上没有时自动回退官方源。" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,6,0,0" TextWrapping="Wrap"
+                       Text="· 已经下过的文件会按 SHA1 跳过，中断了直接重来就行。" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,6,0,0" TextWrapping="Wrap"
+                       Text="· 加载器版本默认开启版本隔离，它的 mods 和存档都放在版本目录里，互不干扰。" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- 底部按钮 -->
+      <Border Grid.Row="2" Background="{DynamicResource LayerBrush}"
+              BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0"
+              Margin="1,0,-1,-1">
+        <Grid Height="56">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+
+          <Button Grid.Column="0" Style="{StaticResource LinkButton}" Content="打开版本目录"
+                  HorizontalAlignment="Left" Margin="20,0,0,0" Click="OpenDir_Click" />
+
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,16,0">
+            <Button Style="{StaticResource SubtleButton}" Content="取消" MinWidth="80"
+                    Click="Cancel_Click" />
+            <Button x:Name="BtnInstall" Style="{StaticResource AccentButton}"
+                    Content="开始安装" MinWidth="104" Margin="8,0,0,0"
+                    Click="Install_Click" />
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

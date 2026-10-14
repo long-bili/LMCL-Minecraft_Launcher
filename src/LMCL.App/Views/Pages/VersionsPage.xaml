@@ -1,0 +1,348 @@
+<pages:PageBase x:Class="LMCL.App.Views.Pages.VersionsPage"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:pages="clr-namespace:LMCL.App.Views.Pages"
+               FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+               Foreground="{DynamicResource TextBrush}">
+
+  <pages:PageBase.Resources>
+    <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+    <!--
+      游戏目录下拉专用的一项：左边目录名、右边一个移除按钮。
+
+      为什么不放进公共的 Controls.xaml：那里是共享资源字典，**不能挂事件处理器**
+      （Click 必须解析到某个类的代码后置，资源字典没有）。而且那样会让所有下拉
+      都多出一个叉。所以这份只服务 GameDirCombo。
+    -->
+    <Style x:Key="GameDirComboItem" TargetType="ComboBoxItem"
+           BasedOn="{StaticResource ComboItem}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ComboBoxItem">
+            <Grid>
+              <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Margin="4,1" />
+              <Border x:Name="Bar" Width="3" Height="14" CornerRadius="2" Margin="4,0,0,0"
+                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                      Background="{DynamicResource AccentBrush}" Visibility="Collapsed" />
+
+              <Grid Margin="10,5,6,5">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <ContentPresenter Grid.Column="0" VerticalAlignment="Center" />
+
+                <!--
+                  移除按钮。点它只负责「移除」，不会顺手切换目录：
+                  隧道阶段先把标志立起来（PreviewMouseLeftButtonDown），
+                  比 ComboBox 的选中更早；Click 里再 e.Handled 掐断冒泡。
+
+                  「默认位置」那一项不是真实目录，得把它藏掉。
+                  注意：DataTrigger 写在标签自己的 Style 里才生效 ——
+                  直接写在标签上的 Visibility 是局部值，优先级比触发器高，
+                  触发器永远盖不过它（项目里已经踩过一次）。
+                -->
+                <Button x:Name="RemoveButton" Grid.Column="1" Width="22" Height="22"
+                        Padding="0" FontSize="10" Margin="8,0,0,0"
+                        VerticalAlignment="Center" Cursor="Hand"
+                        Content="&#xE711;"
+                        FontFamily="{DynamicResource IconFont}"
+                        Foreground="{DynamicResource TextTertiaryBrush}"
+                        PreviewMouseLeftButtonDown="GameDirRemove_PreviewMouseDown"
+                        Click="GameDirRemove_Click"
+                        ToolTip="把这个目录从列表里移除">
+                  <!-- Style 必须用元素写法：既要继承公共样式，又要加 IsDefault 的显隐触发器 -->
+                  <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource SubtleButton}">
+                      <Setter Property="Visibility" Value="Visible" />
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsDefault}" Value="True">
+                          <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Button.Style>
+                </Button>
+              </Grid>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleHoverBrush}" />
+              </Trigger>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleHoverBrush}" />
+                <Setter TargetName="Bar" Property="Visibility" Value="Visible" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </pages:PageBase.Resources>
+
+  <!--
+    版本与资源：左边一列版本，右边是选中版本的详情。
+    原来「版本管理 / 版本设置 / 资源管理」是三个平级入口，改个内存要跳两页——
+    现在合成一页的主从布局，选中的版本一路管到底。
+  -->
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="304" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <!-- ══ 左：版本列表 ═══════════════════════════════════ -->
+    <Grid Grid.Column="0" Background="{DynamicResource NavPaneBrush}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <StackPanel Grid.Row="0" Margin="16,16,16,10">
+        <Grid>
+          <TextBlock Text="版本" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Style="{StaticResource LinkButton}" Content="刷新" Click="Refresh_Click" />
+            <Button Style="{StaticResource LinkButton}" Content="打开目录" Click="OpenDir_Click" />
+          </StackPanel>
+        </Grid>
+
+        <!-- 游戏目录切换：即时生效，无需保存 -->
+        <Grid Margin="0,10,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="游戏目录" Style="{StaticResource CaptionText}"
+                     VerticalAlignment="Center" Margin="0,0,8,0" />
+          <ComboBox Grid.Column="1" x:Name="GameDirCombo" Style="{StaticResource Combo}"
+                    ItemContainerStyle="{StaticResource GameDirComboItem}"
+                    ToolTip="在这里切换游戏目录；每一项右边的叉可以把它从列表里移除"
+                    SelectionChanged="GameDirCombo_Changed" />
+          <Button Grid.Column="2" Style="{StaticResource SubtleButton}" Content="浏览…"
+                  Margin="8,0,0,0" Click="BrowseGameDir_Click"
+                  ToolTip="打开文件资源管理器选择版本文件夹" />
+        </Grid>
+
+        <Grid Margin="0,10,0,0">
+          <TextBox x:Name="SearchBox" Style="{StaticResource InputBox}" />
+          <TextBlock Text="搜索版本 / 加载器" IsHitTestVisible="False"
+                     Margin="11,0,0,0" VerticalAlignment="Center"
+                     Foreground="{DynamicResource TextTertiaryBrush}" FontSize="13">
+            <TextBlock.Style>
+              <Style TargetType="TextBlock">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                    <Setter Property="Visibility" Value="Visible" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TextBlock.Style>
+          </TextBlock>
+        </Grid>
+
+        <TextBlock x:Name="CountText" Style="{StaticResource CaptionText}" Margin="0,8,0,0" />
+      </StackPanel>
+
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="12,0,8,0">
+        <Grid>
+          <!-- 列表项必须有模板：不给模板的话 ListBox 会直接 ToString()，
+               界面上就是一串「LMCL.App.Views.Pages.VersionRow」 -->
+          <ListBox x:Name="List" Style="{StaticResource PlainList}"
+                   SelectionChanged="List_SelectionChanged">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />   <!-- 图标 + 选择按钮 -->
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+
+                  <!-- 版本图标：底部叠一个「选择」按钮，选中的版本打「当前」徽标 -->
+                  <Grid Grid.Column="0" Width="56" Margin="2,2,12,2">
+                    <Border Width="56" Height="56" CornerRadius="12"
+                            Background="{DynamicResource AccentSoftBrush}">
+                      <TextBlock Text="&#xE8F1;" FontFamily="{DynamicResource IconFont}" FontSize="26"
+                                 Foreground="{DynamicResource AccentBrush}"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+
+                    <Border Style="{StaticResource Chip}"
+                            Visibility="{Binding IsCurrent, Converter={StaticResource BoolToVis}}"
+                            HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+                            Background="{DynamicResource AccentBrush}">
+                      <TextBlock Text="当前" Style="{StaticResource ChipText}"
+                                 Foreground="{DynamicResource TextOnAccentBrush}" />
+                    </Border>
+
+                    <Button Click="ChooseForHome_Click"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+                      <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ChooseButton}">
+                          <Setter Property="Content" Value="选择" />
+                          <Setter Property="IsEnabled" Value="True" />
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                              <Setter Property="Content" Value="已选" />
+                              <Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </Button.Style>
+                    </Button>
+                  </Grid>
+
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Subtitle}" Style="{StaticResource CaptionText}"
+                               Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding SizeText}" Style="{StaticResource CaptionText}"
+                               Margin="0,3,0,0" />
+                  </StackPanel>
+
+                  <Border Grid.Column="2" Style="{StaticResource Chip}" VerticalAlignment="Top"
+                          Visibility="{Binding Isolated, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="隔离" Style="{StaticResource ChipText}" />
+                  </Border>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+
+          <TextBlock x:Name="EmptyHint" Style="{StaticResource EmptyState}" />
+        </Grid>
+      </ScrollViewer>
+
+      <Button Grid.Row="2" Style="{StaticResource AccentButton}" Content="下载新版本"
+              Margin="16,12,16,16" Click="Download_Click" />
+    </Grid>
+
+    <!-- ══ 右：选中版本的详情 ═════════════════════════════ -->
+    <Grid Grid.Column="1">
+      <!-- 一个版本都没有时的整页空状态 -->
+      <StackPanel x:Name="NoSelection" VerticalAlignment="Center" HorizontalAlignment="Center"
+                  MaxWidth="420">
+        <TextBlock Text="&#xE8F1;" FontFamily="{DynamicResource IconFont}" FontSize="40"
+                   Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" />
+        <TextBlock Text="还没有安装任何版本" Style="{StaticResource SectionTitle}"
+                   Margin="0,16,0,0" HorizontalAlignment="Center" />
+        <TextBlock Style="{StaticResource SecondaryText}" Margin="0,8,0,0"
+                   TextAlignment="Center"
+                   Text="去「下载」装一个原版就行。要装模组的话，顺手把 Forge / NeoForge / Fabric 也勾上。" />
+        <Button Style="{StaticResource AccentButton}" Content="去下载" Margin="0,18,0,0"
+                HorizontalAlignment="Center" Click="Download_Click" />
+      </StackPanel>
+
+      <!-- 选中版本后的详情 -->
+      <Grid x:Name="Detail" Visibility="Collapsed">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- 头部：版本名 + 徽章 + 操作 -->
+        <Grid Grid.Row="0" Margin="24,18,24,0">
+          <StackPanel>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock x:Name="DetailName" Style="{StaticResource PageTitle}" />
+              <Border Style="{StaticResource Chip}" Margin="10,4,0,0">
+                <TextBlock x:Name="DetailLoader" Style="{StaticResource ChipText}" />
+              </Border>
+              <Border x:Name="DetailIsolatedChip" Style="{StaticResource Chip}" Margin="6,4,0,0">
+                <TextBlock Text="独立目录" Style="{StaticResource ChipText}" />
+              </Border>
+            </StackPanel>
+            <TextBlock x:Name="DetailMeta" Style="{StaticResource CaptionText}" Margin="0,8,0,0" />
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Button x:Name="BtnLaunch" Style="{StaticResource AccentButton}" Content="启动"
+                    Click="Launch_Click" />
+            <Button Style="{StaticResource SubtleButton}" Content="打开目录" Margin="8,0,0,0"
+                    Click="Folder_Click" />
+            <Button Style="{StaticResource SubtleButton}" Content="删除" Margin="8,0,0,0"
+                    Click="Delete_Click" />
+          </StackPanel>
+        </Grid>
+
+        <!-- 分栏 -->
+        <ListBox Grid.Row="1" x:Name="Tabs" Style="{StaticResource TabStrip}"
+                 Margin="24,16,24,0" SelectionChanged="Tabs_Changed">
+          <ListBoxItem Content="概览" />
+          <ListBoxItem Content="版本设置" />
+          <ListBoxItem Content="资源管理" />
+        </ListBox>
+
+        <Border Grid.Row="1" Height="1" VerticalAlignment="Bottom"
+                Background="{DynamicResource DividerBrush}" />
+
+        <!-- 内容 -->
+        <Grid Grid.Row="2">
+          <ScrollViewer x:Name="OverviewPane" VerticalScrollBarVisibility="Auto"
+                        Padding="24,16,20,16">
+            <StackPanel>
+              <Border Style="{StaticResource Card}">
+                <StackPanel>
+                  <TextBlock Text="基本信息" Style="{StaticResource SectionTitle}" />
+                  <Border Style="{StaticResource Divider}" Margin="0,12,0,4" />
+                  <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="110" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="对应的原版" Style="{StaticResource SecondaryText}" Margin="0,0,0,10" />
+                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="InfoBase" Style="{StaticResource BodyText}" Margin="0,0,0,10" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="加载器" Style="{StaticResource SecondaryText}" Margin="0,0,0,10" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="InfoLoader" Style="{StaticResource BodyText}" Margin="0,0,0,10" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="占用空间" Style="{StaticResource SecondaryText}" Margin="0,0,0,10" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="InfoSize" Style="{StaticResource BodyText}" Margin="0,0,0,10" />
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="安装时间" Style="{StaticResource SecondaryText}" Margin="0,0,0,10" />
+                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="InfoTime" Style="{StaticResource BodyText}" Margin="0,0,0,10" />
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="游戏目录" Style="{StaticResource SecondaryText}" />
+                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="InfoDir" Style="{StaticResource BodyText}"
+                               TextWrapping="Wrap" />
+                  </Grid>
+                </StackPanel>
+              </Border>
+
+              <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                <StackPanel>
+                  <TextBlock Text="这个版本用到的内存" Style="{StaticResource SectionTitle}" />
+                  <TextBlock x:Name="InfoMemory" Style="{StaticResource SecondaryText}" Margin="0,10,0,0" />
+                  <TextBlock Style="{StaticResource CaptionText}" Margin="0,6,0,0"
+                             Text="在「版本设置」里留空表示跟随全局值，填了才覆盖。" />
+                  <Button Style="{StaticResource LinkButton}" Content="去改内存 / Java 参数"
+                          Margin="-6,10,0,0" HorizontalAlignment="Left" Click="GoSettings_Click" />
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </ScrollViewer>
+
+          <ContentControl x:Name="InstanceHost" Visibility="Collapsed" />
+          <ContentControl x:Name="ResourceHost" Visibility="Collapsed" />
+        </Grid>
+      </Grid>
+    </Grid>
+  </Grid>
+</pages:PageBase>

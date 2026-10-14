@@ -1,0 +1,153 @@
+<pages:PageBase x:Class="LMCL.App.Views.Pages.HelpPage"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:pages="clr-namespace:LMCL.App.Views.Pages"
+               FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+               Foreground="{DynamicResource TextBrush}">
+
+  <Grid x:Name="PageRoot" Margin="24,16,20,16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0" x:Name="PageHeader" Margin="0,0,6,14">
+      <TextBlock Text="帮助" Style="{StaticResource PageTitle}" />
+      <TextBlock x:Name="VersionText" Style="{StaticResource CaptionText}"
+                 HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+    </Grid>
+
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+      <StackPanel>
+
+        <!-- ══ 三步上手 ════════════════════════════════ -->
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <TextBlock Text="三步就能玩上" Style="{StaticResource SectionTitle}" />
+
+            <Grid Margin="0,16,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="34" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Border Grid.Column="0" Width="24" Height="24" CornerRadius="12"
+                      Background="{DynamicResource AccentBrush}" VerticalAlignment="Top">
+                <TextBlock Text="1" Foreground="{DynamicResource TextOnAccentBrush}"
+                           FontSize="12" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <StackPanel Grid.Column="1">
+                <TextBlock Text="先加一个账号" Style="{StaticResource BodyText}" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                           Text="点右上角的账号按钮。单人玩的话离线账号就够了，随便起个名字就能用；要进正版服或者玩外置登录服，就选对应的方式登录。" />
+              </StackPanel>
+            </Grid>
+
+            <Grid Margin="0,16,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="34" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Border Grid.Column="0" Width="24" Height="24" CornerRadius="12"
+                      Background="{DynamicResource AccentBrush}" VerticalAlignment="Top">
+                <TextBlock Text="2" Foreground="{DynamicResource TextOnAccentBrush}"
+                           FontSize="12" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <StackPanel Grid.Column="1">
+                <TextBlock Text="去下载中心装一个版本" Style="{StaticResource BodyText}" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                           Text="只想玩原版就选「原版」；要装模组就顺手把 Forge / NeoForge / Fabric 也选上。加载器会让客户端自己去跑官方安装器，装完自动开版本隔离。" />
+              </StackPanel>
+            </Grid>
+
+            <Grid Margin="0,16,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="34" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Border Grid.Column="0" Width="24" Height="24" CornerRadius="12"
+                      Background="{DynamicResource AccentBrush}" VerticalAlignment="Top">
+                <TextBlock Text="3" Foreground="{DynamicResource TextOnAccentBrush}"
+                           FontSize="12" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <StackPanel Grid.Column="1">
+                <TextBlock Text="回主页点启动" Style="{StaticResource BodyText}" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                           Text="第一次启动会把缺的文件补齐，进度在底部状态条上。之后启动就只是检查一遍，很快。" />
+              </StackPanel>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+              <Button Style="{StaticResource AccentButton}" Content="去下载版本" Click="GoDownload_Click" />
+              <Button Style="{StaticResource SubtleButton}" Content="管理账号" Margin="8,0,0,0"
+                      Click="Account_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 常见问题 ════════════════════════════════ -->
+        <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+          <StackPanel>
+            <TextBlock Text="常见问题" Style="{StaticResource SectionTitle}" />
+
+            <TextBlock Text="启动就闪退 / 报错怎么办？" Style="{StaticResource BodyText}"
+                       FontWeight="SemiBold" Margin="0,16,0,0" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                       Text="先去「工具 → 日志分析」，它会读游戏自己写的 latest.log 并给出常见原因。如果是模组冲突，可以先把 mods 目录里的模组全部禁用，再一半一半加回来定位。" />
+
+            <TextBlock Text="提示缺 Java / Java 版本不对？" Style="{StaticResource BodyText}"
+                       FontWeight="SemiBold" Margin="0,16,0,0" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                       Text="1.17 之后需要 Java 17，1.20.5 之后普遍需要 Java 21。启动器会自己挑最合适的本机 Java；本机一个都没有时会自动下载 Mojang 运行时，所以通常不用手动装。" />
+
+            <TextBlock Text="加了内存但还是卡 / 还是不够用？" Style="{StaticResource BodyText}"
+                       FontWeight="SemiBold" Margin="0,16,0,0" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                       Text="先确认改的是不是当前这个版本：「版本设置」里留空表示跟随全局值，填了才覆盖。想确认实际生效的参数，去「工具 → 启动参数」看真实拼出来的命令。" />
+
+            <TextBlock Text="下载很慢或者报 404？" Style="{StaticResource BodyText}"
+                       FontWeight="SemiBold" Margin="0,16,0,0" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                       Text="启动器会优先走镜像，镜像上没有的会自动回退官方源，日志里能看到详细过程。如果大面积失败，去「设置」把下载源切成官方源，或者把下载线程调小一点再试。" />
+
+            <TextBlock Text="模组 / 存档放在哪？" Style="{StaticResource BodyText}"
+                       FontWeight="SemiBold" Margin="0,16,0,0" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                       Text="开了版本隔离的版本，mods、resourcepacks、shaderpacks、saves 都在该版本自己的目录里（versions\版本名\）；没开隔离就都在游戏目录根下，所有版本共用。两者的实际路径在「资源管理」顶部直接写着。" />
+
+            <TextBlock Text="换电脑怎么把版本搬过去？" Style="{StaticResource BodyText}"
+                       FontWeight="SemiBold" Margin="0,16,0,0" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                       Text="把整个游戏目录拷过去就行，启动器不会把东西藏在注册表里。启动器的设置、账号和日志在 %APPDATA%\LMCL，需要一起带走就拷这个目录。" />
+
+            <TextBlock Text="装完新版本以后打不开 / 提示版本不存在？" Style="{StaticResource BodyText}"
+                       FontWeight="SemiBold" Margin="0,16,0,0" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,5,0,0"
+                       Text="去「版本管理」点一次刷新：列表是按目录实时扫的，浏览器或者别的启动器在后台改过目录，界面上不会自动更新。" />
+          </StackPanel>
+        </Border>
+
+        <!--
+          ══ 关于 ══
+          按需求只留版本号和作者。原来那三个按钮（打开启动器目录 / 导出日志 / 系统信息）
+          在「设置 → 工具」里都有，删掉不损失功能。
+        -->
+        <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+          <StackPanel>
+            <TextBlock Text="关于" Style="{StaticResource SectionTitle}" />
+            <TextBlock x:Name="AboutText" Style="{StaticResource SecondaryText}" Margin="0,12,0,0" />
+
+            <TextBlock Text="作者" Style="{StaticResource CaptionText}" Margin="0,20,0,0" />
+            <TextBlock Text="laolong" Style="{StaticResource BodyText}" Margin="0,4,0,0" />
+            <TextBlock Margin="0,6,0,0">
+              <Hyperlink NavigateUri="https://space.bilibili.com/612400018"
+                         RequestNavigate="Bilibili_RequestNavigate">哔哩哔哩主页 ↗</Hyperlink>
+            </TextBlock>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</pages:PageBase>

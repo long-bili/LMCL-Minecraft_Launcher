@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>LMCL.Core</AssemblyName>
+    <RootNamespace>LMCL.Core</RootNamespace>
+    <Version>2.0.1</Version>
+    <Authors>laolong</Authors>
+    <Company>laolong</Company>
+    <Copyright>Copyright (c) laolong</Copyright>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/laolong/LMCL</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Release 出包时不带符号文件：单文件目录里躺一个 pdb 只会让人以为漏了东西 -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CmlLib.Core" Version="4.0.6" />
+    <!--
+      这两个包各自导出了同名类型 CmlLib.Core.Installer.NeoForge.NeoForgeInstaller，
+      同时引用会触发 CS0433。用 extern alias 把它们隔离，各自取需要的实现。
+    -->
+    <PackageReference Include="CmlLib.Core.Installer.Forge" Version="2.0.0" Aliases="forge" />
+    <PackageReference Include="CmlLib.Core.Installer.NeoForge" Version="4.0.1" Aliases="neoforge" />
+  </ItemGroup>
+
+</Project>

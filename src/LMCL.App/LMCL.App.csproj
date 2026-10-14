@@ -1,0 +1,82 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>LMCL</AssemblyName>
+    <RootNamespace>LMCL.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Version>2.0.1</Version>
+    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <FileVersion>2.0.1.0</FileVersion>
+    <InformationalVersion>2.0.1</InformationalVersion>
+    <Product>LMCL 启动器</Product>
+    <AssemblyTitle>LMCL</AssemblyTitle>
+    <Authors>laolong</Authors>
+    <Company>laolong</Company>
+    <Copyright>Copyright (c) laolong</Copyright>
+    <Description>LMCL Minecraft 启动器</Description>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/laolong/LMCL</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <!--
+    Release = 免安装单文件版。
+
+    为什么写在这里而不是发布命令里：这样「怎么出包」这件事只在一个地方定义，
+    别人拿到仓库跑 dotnet publish -c Release 得到的就是同一份东西，不会漏参数。
+
+    几个必选项：
+      · SelfContained       自带 .NET 运行时，对方电脑什么都不用装
+      · IncludeNativeLibrariesForSelfExtract
+                            WPF 有原生库，不带上就单文件跑不起来
+      · EnableCompressionInSingleFile
+                            压缩后能从 ~150 MB 降到 ~70 MB，代价是首次启动稍慢
+      · 不能开 PublishTrimmed：WPF 依赖反射，裁剪会把界面裁没
+  -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LMCL.Core\LMCL.Core.csproj" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <!--
+    内置皮肤（Steve / Alex）必须**打进程序集**，不能用 Content 放在旁边。
+
+    踩过的坑：原来写的是 Content + CopyToOutputDirectory，开发机上 bin 目录里
+    确实有一份 Assets\Skins\*.png，所以本机看着一切正常；但 Release 是
+    PublishSingleFile，那些松散文件不会进单文件包 —— 换一台电脑打开，
+    皮肤库找不到兜底图，Steve / Alex 的头像就渲染不出来。
+
+    改成 EmbeddedResource 后，资源被编进程序集，单文件 exe 里一定有。
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Skins\steve.png" LogicalName="LMCL.Skins.steve.png" />
+    <EmbeddedResource Include="Assets\Skins\alex.png" LogicalName="LMCL.Skins.alex.png" />
+  </ItemGroup>
+
+  <!-- Assets 下其余文件（图标之类）仍然照旧复制到输出目录 -->
+  <ItemGroup>
+    <Content Include="Assets\**" Exclude="Assets\Skins\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

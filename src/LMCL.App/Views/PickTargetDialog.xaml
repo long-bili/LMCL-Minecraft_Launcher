@@ -1,0 +1,90 @@
+<Window x:Class="LMCL.App.Views.PickTargetDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="选择安装位置" Width="480" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" ResizeMode="NoResize"
+        Background="{DynamicResource WindowBrush}"
+        FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+        Foreground="{DynamicResource TextBrush}"
+        FocusManager.FocusedElement="{Binding ElementName=VersionList}">
+
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="6" CornerRadius="0"
+                        GlassFrameThickness="-1" UseAeroCaptionButtons="False" />
+  </shell:WindowChrome.WindowChrome>
+
+  <Border Background="Transparent"
+          BorderBrush="{DynamicResource StrokeBrush}" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="40" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- 标题栏 -->
+      <Grid Grid.Row="0">
+        <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center"
+                    IsHitTestVisible="False">
+          <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource IconFont}" FontSize="14"
+                     Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" />
+          <TextBlock x:Name="HeaderText" Text="选择安装位置" FontSize="13" FontWeight="SemiBold"
+                     Margin="8,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+        <Button Style="{StaticResource CaptionCloseButton}" Content="&#xE8BB;"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                Click="Cancel_Click" ToolTip="关闭" />
+      </Grid>
+
+      <StackPanel Grid.Row="1" Margin="20,6,20,16">
+        <TextBlock x:Name="IntroText" Style="{StaticResource SecondaryText}" TextWrapping="Wrap"
+                   Text="选一个版本，文件会放进它的对应目录里。" />
+
+        <ListBox x:Name="VersionList" Style="{StaticResource SideNav}"
+                 Margin="0,12,0,0" MaxHeight="280"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 SelectionChanged="Version_Changed" />
+
+        <TextBlock x:Name="PathHint" Style="{StaticResource CaptionText}"
+                   Margin="0,10,0,0" TextWrapping="Wrap" />
+
+        <!-- 也给一条「不装进任何版本」的出路：手动挑一个目录 -->
+        <Border Style="{StaticResource Divider}" Margin="0,14,0,12" />
+
+        <StackPanel Orientation="Horizontal">
+          <Button Style="{StaticResource SubtleButton}" Content="选择其他文件夹…"
+                  Click="Browse_Click" />
+          <TextBlock x:Name="CustomPath" Style="{StaticResource CaptionText}"
+                     VerticalAlignment="Center" Margin="10,0,0,0"
+                     TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+      </StackPanel>
+
+      <!-- 底部按钮 -->
+      <Border Grid.Row="2" Background="{DynamicResource LayerBrush}"
+              BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0"
+              Margin="1,0,-1,-1">
+        <Grid Height="56">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+
+          <TextBlock x:Name="SizeText" Style="{StaticResource CaptionText}"
+                     VerticalAlignment="Center" Margin="20,0,0,0" />
+
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,16,0">
+            <Button Style="{StaticResource SubtleButton}" Content="取消" MinWidth="80"
+                    Click="Cancel_Click" />
+            <Button x:Name="BtnOk" Style="{StaticResource AccentButton}"
+                    Content="安装到这里" MinWidth="112" Margin="8,0,0,0"
+                    IsEnabled="False" Click="Ok_Click" />
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

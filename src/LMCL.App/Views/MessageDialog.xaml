@@ -1,0 +1,100 @@
+<Window x:Class="LMCL.App.Views.MessageDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="LMCL" Width="460" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" ResizeMode="NoResize"
+        Background="{DynamicResource WindowBrush}"
+        FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+        Foreground="{DynamicResource TextBrush}">
+
+  <!--
+    统一风格的消息框，替掉原来 Win32 的 MessageBox。
+
+    为什么不用 MessageBox：它画的是系统那套样式，跟启动器的云母 / 圆角 / 深色
+    完全是两套东西，弹出来很突兀；而且按钮文案、图标都没法按内容调整。
+
+    这一份沿用项目里其它对话框的骨架（WindowChrome + 自绘标题栏 + 底部按钮条），
+    四种语气（信息 / 成功 / 警告 / 错误 / 询问）靠图标、图标颜色和按钮配色区分。
+  -->
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="6" CornerRadius="0"
+                        GlassFrameThickness="-1" UseAeroCaptionButtons="False" />
+  </shell:WindowChrome.WindowChrome>
+
+  <Border Background="Transparent"
+          BorderBrush="{DynamicResource StrokeBrush}" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="40" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- 标题栏 -->
+      <Grid Grid.Row="0">
+        <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center"
+                    IsHitTestVisible="False">
+          <!-- 图标：字形和颜色由代码按语气设置 -->
+          <TextBlock x:Name="KindIcon" Text="&#xE946;" FontFamily="{DynamicResource IconFont}"
+                     FontSize="14" Foreground="{DynamicResource AccentBrush}"
+                     VerticalAlignment="Center" />
+          <TextBlock x:Name="TitleText" Text="LMCL" FontSize="13" FontWeight="SemiBold"
+                     Margin="8,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+        <Button Style="{StaticResource CaptionCloseButton}" Content="&#xE8BB;"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                Click="Close_Click" ToolTip="关闭" />
+      </Grid>
+
+      <!-- 正文 -->
+      <Grid Grid.Row="1" Margin="20,14,20,18">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!--
+          左侧大图标。`Margin` 顶部留 1：正文那行的行高比 32 小一点，
+          图标顶到最上面会和第一行字的**视觉**中线错开，看着像没对齐。
+          这点偏移是照着截图校准的，不是随手写的。
+        -->
+        <Border Grid.Column="0" Width="32" Height="32" CornerRadius="16"
+                VerticalAlignment="Top" Margin="0,1,14,0">
+          <Border.Background>
+            <SolidColorBrush x:Name="IconPlate" Color="Transparent" />
+          </Border.Background>
+          <TextBlock x:Name="BigIcon" Text="&#xE946;" FontFamily="{DynamicResource IconFont}"
+                     FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock.Foreground>
+              <SolidColorBrush x:Name="IconInk" Color="Gray" />
+            </TextBlock.Foreground>
+          </TextBlock>
+        </Border>
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto"
+                      MaxHeight="320" HorizontalScrollBarVisibility="Disabled">
+          <TextBlock x:Name="MessageText" TextWrapping="Wrap" />
+        </ScrollViewer>
+      </Grid>
+
+      <!-- 底部按钮条 -->
+      <Border Grid.Row="2" Background="{DynamicResource LayerBrush}"
+              BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0"
+              Margin="1,0,-1,-1">
+        <Grid Height="56" Margin="0,0,16,0">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <!-- 「取消 / 否」：询问类才显示 -->
+            <Button x:Name="BtnCancel" Style="{StaticResource SubtleButton}"
+                    Content="取消" MinWidth="88" Click="Cancel_Click" />
+            <!-- 「确定 / 是」：文案由代码定 -->
+            <Button x:Name="BtnOk" Style="{StaticResource AccentButton}"
+                    Content="确定" MinWidth="88" Margin="8,0,0,0" Click="Ok_Click" />
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

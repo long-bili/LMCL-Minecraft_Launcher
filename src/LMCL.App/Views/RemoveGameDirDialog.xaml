@@ -1,0 +1,97 @@
+<Window x:Class="LMCL.App.Views.RemoveGameDirDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="移除游戏目录" Width="520" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" ResizeMode="NoResize"
+        Background="{DynamicResource WindowBrush}"
+        FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+        Foreground="{DynamicResource TextBrush}"
+        FocusManager.FocusedElement="{Binding ElementName=BtnListOnly}">
+
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="6" CornerRadius="0"
+                        GlassFrameThickness="-1" UseAeroCaptionButtons="False" />
+  </shell:WindowChrome.WindowChrome>
+
+  <Border Background="Transparent"
+          BorderBrush="{DynamicResource StrokeBrush}" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="40" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- 标题栏 -->
+      <Grid Grid.Row="0">
+        <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center"
+                    IsHitTestVisible="False">
+          <TextBlock Text="&#xE74D;" FontFamily="{DynamicResource IconFont}" FontSize="14"
+                     Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" />
+          <TextBlock Text="从列表里移除这个游戏目录" FontSize="13" FontWeight="SemiBold"
+                     Margin="8,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+        <Button Style="{StaticResource CaptionCloseButton}" Content="&#xE8BB;"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                Click="Cancel_Click" ToolTip="关闭" />
+      </Grid>
+
+      <StackPanel Grid.Row="1" Margin="20,6,20,16">
+        <TextBlock Style="{StaticResource SecondaryText}" TextWrapping="Wrap"
+                   Text="这个目录只是从启动器的列表里去掉，文件夹本身怎么处理由你决定。" />
+
+        <!-- 目录路径 -->
+        <Border Style="{StaticResource CardTight}" Margin="0,12,0,0" Padding="12,10">
+          <StackPanel>
+            <TextBlock Text="目录" Style="{StaticResource CaptionText}" />
+            <TextBlock x:Name="DirPath" Style="{StaticResource MonoText}" FontSize="11.5"
+                       Margin="0,6,0,0" TextWrapping="Wrap" />
+            <TextBlock x:Name="DirInfo" Style="{StaticResource CaptionText}" Margin="0,8,0,0" />
+          </StackPanel>
+        </Border>
+
+        <!--
+          两个选项分开摆、各自带说明：
+          「只移除」是安全动作，「连文件一起删」是不可恢复的，必须一眼看出区别。
+        -->
+        <Button x:Name="BtnListOnly" Style="{StaticResource SubtleButton}"
+                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                Padding="12,10" Margin="0,14,0,0" Click="RemoveFromList_Click"
+                ToolTip="文件夹留在磁盘上，随时可以再浏览加回来">
+          <StackPanel>
+            <TextBlock Text="只从列表移除" FontWeight="SemiBold" />
+            <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap" Margin="0,3,0,0"
+                       Text="不动磁盘上的任何文件。以后还能用「浏览…」把它加回来。这是安全操作。" />
+          </StackPanel>
+        </Button>
+
+        <Button x:Name="BtnDelete" Style="{StaticResource SubtleButton}"
+                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                Padding="12,10" Margin="0,8,0,0" Click="DeleteFolder_Click"
+                ToolTip="连同整个文件夹一起删掉，无法撤销">
+          <StackPanel>
+            <TextBlock Text="同时删除本地的整个文件夹" FontWeight="SemiBold"
+                       Foreground="{DynamicResource ErrorBrush}" />
+            <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap" Margin="0,3,0,0"
+                       Text="会把整个游戏目录（含所有版本、存档、模组）从磁盘删掉。删掉之后无法恢复，点下去还会再问一次。" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+
+      <!-- 底部按钮 -->
+      <Border Grid.Row="2" Background="{DynamicResource LayerBrush}"
+              BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0"
+              Margin="1,0,-1,-1">
+        <Grid Height="56">
+          <Button Style="{StaticResource LinkButton}" Content="打开这个目录看看"
+                  HorizontalAlignment="Left" Margin="20,0,0,0" Click="OpenDir_Click" />
+          <Button Style="{StaticResource SubtleButton}" Content="取消" MinWidth="80"
+                  HorizontalAlignment="Right" Margin="0,0,16,0" Click="Cancel_Click" />
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>
