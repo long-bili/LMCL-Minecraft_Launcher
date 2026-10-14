@@ -1,21 +1,19 @@
 # LMCL
 
-一个用 **C# / WPF** 从零手写的 Minecraft 启动器，功能对齐 PCL，界面走 Windows 11 原生风格（云母材质 + Fluent 控件）。
+一个用 **C# / WPF** 从零手写的 Minecraft 启动器， Windows 11 原生风格（云母材质 + Fluent 控件）。
 
 **当前版本 2.0.1** ／ 作者 laolong
 
-原生桌面程序 —— 没有 WebView，没有网页壳，没有 HTML/JS，所有界面都是 XAML + 自写控件模板。
+原生桌面程序 —— 没有 WebView，没有网页套壳，没有 HTML/JS，所有界面都是 XAML + 自写控件模板。
 
 ```
 dotnet build LMCL.sln                  # 0 警告 0 错误
 dotnet run --project src/LMCL.App      # 开发时直接跑
 ```
 
-出免安装单文件版：
-
 ```
 dotnet publish src/LMCL.App -c Release -o dist
-# → dist/LMCL.exe   约 57 MB，自带 .NET 运行时，对方电脑什么都不用装
+# → dist/LMCL.exe   约 57 MB，自带 .NET 运行时
 ```
 
 ---
