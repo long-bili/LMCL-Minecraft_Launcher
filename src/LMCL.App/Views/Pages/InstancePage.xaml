@@ -1,0 +1,213 @@
+<pages:PageBase x:Class="LMCL.App.Views.Pages.InstancePage"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:pages="clr-namespace:LMCL.App.Views.Pages"
+               FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+               Foreground="{DynamicResource TextBrush}">
+
+  <Grid x:Name="PageRoot" Margin="24,16,20,16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <!-- ══ 标题 ══════════════════════════════════════════ -->
+    <Grid Grid.Row="0" x:Name="PageHeader" Margin="0,0,6,14">
+      <StackPanel>
+        <TextBlock Text="版本设置" Style="{StaticResource PageTitle}" />
+        <TextBlock Style="{StaticResource CaptionText}" Margin="0,6,0,0"
+                   Text="这里改的是当前版本自己的配置；没改过的项会跟着「设置」里的全局值走。" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <ComboBox x:Name="VersionCombo" Style="{StaticResource Combo}" Width="260"
+                  MaxDropDownHeight="320"
+                  SelectionChanged="Version_Changed" />
+        <Button Style="{StaticResource SubtleButton}" Content="打开实例目录" Margin="8,0,0,0"
+                Click="OpenDir_Click" />
+      </StackPanel>
+    </Grid>
+
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+      <StackPanel>
+
+        <!-- ══ 基础 ════════════════════════════════════ -->
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <TextBlock Text="基础" Style="{StaticResource SectionTitle}" />
+            <TextBlock x:Name="SubtitleText" Style="{StaticResource CaptionText}" Margin="0,8,0,0" />
+
+            <Border Style="{StaticResource Divider}" Margin="0,14,0,4" />
+
+            <Grid Margin="0,10,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0">
+                <TextBlock Text="版本隔离" Style="{StaticResource BodyText}" />
+                <TextBlock Style="{StaticResource CaptionText}" Margin="0,4,0,0"
+                           Text="mods 与存档放进版本自己的目录" />
+              </StackPanel>
+              <CheckBox Grid.Column="1" x:Name="IsolateSwitch" Style="{StaticResource Switch}"
+                        HorizontalAlignment="Left" VerticalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,14,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0">
+                <TextBlock Text="全屏启动" Style="{StaticResource BodyText}" />
+                <TextBlock Style="{StaticResource CaptionText}" Margin="0,4,0,0"
+                           Text="启动后直接进全屏" />
+              </StackPanel>
+              <CheckBox Grid.Column="1" x:Name="FullScreenSwitch" Style="{StaticResource Switch}"
+                        HorizontalAlignment="Left" VerticalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,14,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Grid.Column="0" Text="窗口尺寸" Style="{StaticResource BodyText}"
+                         VerticalAlignment="Center" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="WidthBox" Style="{StaticResource InputBox}" Width="88" />
+                <TextBlock Text="×" Style="{StaticResource SecondaryText}"
+                           VerticalAlignment="Center" Margin="8,0" />
+                <TextBox x:Name="HeightBox" Style="{StaticResource InputBox}" Width="88" />
+                <TextBlock Text="留空则用游戏默认值" Style="{StaticResource CaptionText}"
+                           VerticalAlignment="Center" Margin="10,0,0,0" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 性能 ════════════════════════════════════ -->
+        <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+          <StackPanel>
+            <TextBlock Text="性能" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource CaptionText}" Margin="0,8,0,0"
+                       Text="内存单位都是 MB。一般给 2048～8192 之间，装了大整合包再往上加。" />
+
+            <Border Style="{StaticResource Divider}" Margin="0,14,0,4" />
+
+            <Grid Margin="0,10,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Grid.Column="0" Text="最大内存" Style="{StaticResource BodyText}"
+                         VerticalAlignment="Center" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="MaxMemBox" Style="{StaticResource InputBox}" Width="110" />
+                <TextBlock x:Name="MaxMemHint" Style="{StaticResource CaptionText}"
+                           VerticalAlignment="Center" Margin="10,0,0,0" />
+              </StackPanel>
+            </Grid>
+
+            <Grid Margin="0,14,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Grid.Column="0" Text="最小内存" Style="{StaticResource BodyText}"
+                         VerticalAlignment="Center" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="MinMemBox" Style="{StaticResource InputBox}" Width="110" />
+                <TextBlock Style="{StaticResource CaptionText}" VerticalAlignment="Center"
+                           Margin="10,0,0,0" Text="留空则用全局值" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- ══ Java ════════════════════════════════════ -->
+        <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+          <StackPanel>
+            <TextBlock Text="Java" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource CaptionText}" Margin="0,8,0,0"
+                       Text="指定了路径就用它；没指定时，打开自动选择会挑最合适的本机 Java，关掉则交给游戏自己决定。" />
+
+            <Border Style="{StaticResource Divider}" Margin="0,14,0,4" />
+
+            <Grid Margin="0,10,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Grid.Column="0" Text="自动选择 Java" Style="{StaticResource BodyText}"
+                         VerticalAlignment="Center" />
+              <CheckBox Grid.Column="1" x:Name="AutoJavaSwitch" Style="{StaticResource Switch}"
+                        HorizontalAlignment="Left" VerticalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,14,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Grid.Column="0" Text="Java 路径" Style="{StaticResource BodyText}"
+                         VerticalAlignment="Center" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ComboBox x:Name="JavaCombo" Style="{StaticResource Combo}" Width="280"
+                          MaxDropDownHeight="300" />
+                <Button Style="{StaticResource SubtleButton}" Content="浏览" Margin="8,0,0,0"
+                        Click="BrowseJava_Click" />
+                <Button Style="{StaticResource SubtleButton}" Content="重新检测" Margin="8,0,0,0"
+                        Click="DetectJava_Click" />
+              </StackPanel>
+            </Grid>
+
+            <TextBlock x:Name="JavaHint" Style="{StaticResource CaptionText}" Margin="170,10,0,0" />
+          </StackPanel>
+        </Border>
+
+        <!-- ══ 高级 ════════════════════════════════════ -->
+        <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+          <StackPanel>
+            <TextBlock Text="附加参数" Style="{StaticResource SectionTitle}" />
+            <TextBlock Style="{StaticResource CaptionText}" Margin="0,8,0,0"
+                       Text="按命令行格式写，比如 -XX:+UseG1GC。引号里有空格的参数记得加引号。" />
+
+            <Border Style="{StaticResource Divider}" Margin="0,14,0,12" />
+
+            <TextBlock Text="额外 JVM 参数" Style="{StaticResource BodyText}" />
+            <TextBox x:Name="JvmArgsBox" Style="{StaticResource AreaBox}" Height="72" Margin="0,8,0,0" />
+
+            <TextBlock Text="额外游戏参数" Style="{StaticResource BodyText}" Margin="0,16,0,0" />
+            <TextBox x:Name="GameArgsBox" Style="{StaticResource AreaBox}" Height="72" Margin="0,8,0,0" />
+          </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+          <StackPanel>
+            <TextBlock Text="这个版本的目录在哪" Style="{StaticResource SectionTitle}" />
+            <TextBlock x:Name="PathText" Style="{StaticResource MonoText}" Margin="0,10,0,0"
+                       TextWrapping="Wrap" />
+            <TextBlock Style="{StaticResource CaptionText}" Margin="0,8,0,0"
+                       Text="开了隔离时，mods / resourcepacks / shaderpacks / saves 都在这个目录下面。" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ══ 底部操作条 ══════════════════════════════════ -->
+    <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,12,0,0" Padding="12">
+      <Grid>
+        <TextBlock x:Name="SaveHint" Style="{StaticResource CaptionText}"
+                   VerticalAlignment="Center" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Style="{StaticResource SubtleButton}" Content="恢复默认" Click="Reset_Click" />
+          <Button Style="{StaticResource SubtleButton}" Content="查看启动参数" Margin="8,0,0,0"
+                  Click="Command_Click" />
+          <Button Style="{StaticResource AccentButton}" Content="保存" MinWidth="96"
+                  Margin="8,0,0,0" Click="Save_Click" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</pages:PageBase>

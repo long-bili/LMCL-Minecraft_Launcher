@@ -1,0 +1,67 @@
+<!--
+  强调色板。每套是一个带 Key 的嵌套字典，包含 5 个键：
+    AccentBrush / AccentHoverBrush / AccentPressedBrush / AccentSoftBrush / NavIndicatorBrush
+
+  ThemeManager.ApplyAccent 会把选中的那套插到 MergedDictionaries 末尾——
+  WPF 查资源是逆序过 MergedDictionaries 的，所以后进来的同键字典会盖住
+  Fluent.Light/Dark 里的默认蓝，不用动那两本字典。
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+  <!-- 默认蓝（和 Fluent 字典里的原值一致，选它等于回到默认） -->
+  <ResourceDictionary x:Key="Blue">
+    <SolidColorBrush x:Key="AccentBrush" Color="#005FB8" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#1A5CA8" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#0B4A8F" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#26005FB8" />
+    <SolidColorBrush x:Key="NavIndicatorBrush" Color="#005FB8" />
+  </ResourceDictionary>
+
+  <!-- 翡翠绿 -->
+  <ResourceDictionary x:Key="Green">
+    <SolidColorBrush x:Key="AccentBrush" Color="#107C10" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#15711A" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#0C5C12" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#26107C10" />
+    <SolidColorBrush x:Key="NavIndicatorBrush" Color="#107C10" />
+  </ResourceDictionary>
+
+  <!-- 紫 -->
+  <ResourceDictionary x:Key="Purple">
+    <SolidColorBrush x:Key="AccentBrush" Color="#6B69D6" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#7A78DC" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#5856B8" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#266B69D6" />
+    <SolidColorBrush x:Key="NavIndicatorBrush" Color="#6B69D6" />
+  </ResourceDictionary>
+
+  <!-- 橙 -->
+  <ResourceDictionary x:Key="Orange">
+    <SolidColorBrush x:Key="AccentBrush" Color="#CA5010" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#D45C1C" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#A84410" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#26CA5010" />
+    <SolidColorBrush x:Key="NavIndicatorBrush" Color="#CA5010" />
+  </ResourceDictionary>
+
+  <!-- 玫瑰 -->
+  <ResourceDictionary x:Key="Rose">
+    <SolidColorBrush x:Key="AccentBrush" Color="#C239B3" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#CC47BE" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#A32F95" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#26C239B3" />
+    <SolidColorBrush x:Key="NavIndicatorBrush" Color="#C239B3" />
+  </ResourceDictionary>
+
+  <!-- 青 -->
+  <ResourceDictionary x:Key="Teal">
+    <SolidColorBrush x:Key="AccentBrush" Color="#038387" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#0A8F93" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#02696C" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#26038387" />
+    <SolidColorBrush x:Key="NavIndicatorBrush" Color="#038387" />
+  </ResourceDictionary>
+
+</ResourceDictionary>

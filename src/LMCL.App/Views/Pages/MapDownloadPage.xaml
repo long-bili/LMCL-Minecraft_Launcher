@@ -1,0 +1,58 @@
+<pages:PageBase x:Class="LMCL.App.Views.Pages.MapDownloadPage"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:pages="clr-namespace:LMCL.App.Views.Pages"
+               xmlns:mp="clr-namespace:LMCL.App.Views.Pages.Multiplayer"
+               FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+               Foreground="{DynamicResource TextBrush}">
+
+  <!--
+    在线地图：照设置页的顶部导航栏版式（TabStrip + 分隔线），
+    左边在线资源、右边本地导入，两块内容叠在同一格里切换。
+  -->
+  <Grid Margin="24,16,20,16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <!-- ══ 标题 ══════════════════════════════════════════ -->
+    <StackPanel Grid.Row="0" Margin="0,0,6,14">
+      <TextBlock Text="在线地图" Style="{StaticResource PageTitle}" />
+      <TextBlock Style="{StaticResource CaptionText}" Margin="0,6,0,0"
+                 Text="浏览、下载并导入 CurseForge 的世界地图；手头有 zip 也可以直接导入。" />
+    </StackPanel>
+
+    <!-- ══ 顶部导航（照设置页） ══════════════════════════ -->
+    <ListBox Grid.Row="1" x:Name="Tabs" Style="{StaticResource TabStrip}"
+             SelectionChanged="Tabs_Changed">
+      <ListBoxItem Content="在线资源" />
+      <ListBoxItem Content="本地导入" />
+    </ListBox>
+    <Border Grid.Row="1" Height="1" VerticalAlignment="Bottom"
+            Background="{DynamicResource DividerBrush}" />
+
+    <!-- ══ 内容 ══════════════════════════════════════════ -->
+    <Grid Grid.Row="2">
+      <mp:MapBrowserView x:Name="PaneOnline" />
+      <ScrollViewer x:Name="PaneLocal" VerticalScrollBarVisibility="Auto"
+                    Padding="0,14,0,0" Visibility="Collapsed">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+          <Border Style="{StaticResource Card}">
+            <StackPanel>
+              <TextBlock Text="导入本地地图" Style="{StaticResource SectionTitle}" />
+              <TextBlock Style="{StaticResource CaptionText}" Margin="0,6,0,0" TextWrapping="Wrap"
+                         Text="手头已经有地图压缩包（.zip）？不用联网，直接导入到某个版本的存档目录。" />
+              <Button x:Name="BtnImportLocal" Style="{StaticResource AccentButton}" Margin="0,14,0,0"
+                      HorizontalAlignment="Left" Content="选择 zip 导入…" Click="ImportLocal_Click" />
+              <Border Style="{StaticResource Divider}" Margin="0,14" />
+              <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                         Text="导入时会让你挑一个游戏根目录，地图会被解压到它的 saves 文件夹里；带 level.dat 的压缩包会自动包一层文件夹。进游戏后在单人游戏的地图列表里就能看到。" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+</pages:PageBase>

@@ -1,0 +1,282 @@
+<pages:PageBase x:Class="LMCL.App.Views.Pages.HomePage"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:pages="clr-namespace:LMCL.App.Views.Pages"
+               FontFamily="{DynamicResource AppFont}" FontSize="13.5"
+               Foreground="{DynamicResource TextBrush}">
+
+  <!--
+    主页 = 启动优先 + 上手引导。
+
+    布局从上到下（用 Grid 三行，不是一整条 ScrollViewer）：
+      第 0 行  引导卡（缺账号 / 缺版本时才出现）
+      第 1 行  概览小卡 + 游戏详情（*，内容多了自己滚）
+      第 2 行  启动面板（Auto，**钉在最下面**，不随内容滚动跑掉）
+
+    为什么启动面板压底部：它最常点，位置固定才形成肌肉记忆；
+    而且顺序上「先看详情，最后按启动」也更自然。
+    运行日志搬去了单独的「运行日志」页（左边栏），不再堆在主页底部。
+  -->
+
+  <Grid Margin="24,18,20,18">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <!-- ══ 上手引导（前置条件齐了就不显示）════════════ -->
+    <Border Grid.Row="0" x:Name="GuideCard" Style="{StaticResource Card}"
+            Visibility="Collapsed" Margin="0,0,0,12">
+      <StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="&#xE946;" FontFamily="{DynamicResource IconFont}" FontSize="16"
+                     Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" />
+          <TextBlock x:Name="GuideTitle" Style="{StaticResource SectionTitle}" Margin="8,0,0,0" />
+        </StackPanel>
+
+        <!-- 三步进度：一眼看出走到哪了 -->
+        <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+          <Border x:Name="Step1" Style="{StaticResource Chip}" Margin="0,0,6,0">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock x:Name="Step1Mark" Text="1" FontFamily="{DynamicResource IconFont}"
+                         FontSize="11" VerticalAlignment="Center" />
+              <TextBlock Text="加账号" Style="{StaticResource ChipText}" Margin="5,0,0,0" />
+            </StackPanel>
+          </Border>
+          <Border x:Name="Step2" Style="{StaticResource Chip}" Margin="0,0,6,0">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock x:Name="Step2Mark" Text="2" FontFamily="{DynamicResource IconFont}"
+                         FontSize="11" VerticalAlignment="Center" />
+              <TextBlock Text="装版本" Style="{StaticResource ChipText}" Margin="5,0,0,0" />
+            </StackPanel>
+          </Border>
+          <Border x:Name="Step3" Style="{StaticResource Chip}">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock x:Name="Step3Mark" Text="3" FontFamily="{DynamicResource IconFont}"
+                         FontSize="11" VerticalAlignment="Center" />
+              <TextBlock Text="开玩" Style="{StaticResource ChipText}" Margin="5,0,0,0" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- 缺账号：原地建一个离线账号，输名字回车就行 -->
+        <StackPanel x:Name="NoAccountPanel" Margin="0,16,0,0">
+          <TextBlock Style="{StaticResource SecondaryText}"
+                     Text="单人玩的话离线账号就够了——随便起个名字，立刻就能开玩。" />
+          <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <TextBox x:Name="QuickName" Style="{StaticResource InputBox}" Width="220"
+                     MaxLength="16" KeyDown="QuickName_KeyDown"
+                     ToolTip="最多 16 个字符，这是 Minecraft 自己的限制" />
+            <Button Style="{StaticResource AccentButton}" Content="用这个名字开始"
+                    Margin="8,0,0,0" Click="QuickOffline_Click" />
+            <Button Style="{StaticResource LinkButton}" Content="要用正版 / 外置登录？"
+                    Margin="8,0,0,0" Click="OtherLogin_Click" />
+          </StackPanel>
+        </StackPanel>
+
+        <!-- 缺版本：直接去下载 -->
+        <StackPanel x:Name="NoVersionPanel" Margin="0,16,0,0" Visibility="Collapsed">
+          <TextBlock Style="{StaticResource SecondaryText}"
+                     Text="账号有了，还差一个游戏版本。原版装一次大概 500 MB，之后就一直能用了。" />
+          <Button Style="{StaticResource AccentButton}" Content="去下载一个版本"
+                  Margin="0,12,0,0" HorizontalAlignment="Left" Click="GoDownload_Click" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <!-- ══ 中间：概览 + 游戏详情（内容多了在这里滚）════════ -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled" Padding="0,0,4,0">
+      <StackPanel>
+
+        <!-- ── 概览小卡 ── -->
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+
+          <Border Grid.Column="0" Style="{StaticResource CardTight}" Margin="0,0,6,0">
+            <StackPanel>
+              <TextBlock Text="已装版本" Style="{StaticResource CaptionText}" />
+              <TextBlock x:Name="StatVersions" Style="{StaticResource SectionTitle}"
+                         FontSize="20" Margin="0,6,0,0" />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="1" Style="{StaticResource CardTight}" Margin="6,0">
+            <StackPanel>
+              <TextBlock Text="模组数量" Style="{StaticResource CaptionText}" />
+              <TextBlock x:Name="StatMods" Style="{StaticResource SectionTitle}"
+                         FontSize="20" Margin="0,6,0,0" />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="2" Style="{StaticResource CardTight}" Margin="6,0">
+            <StackPanel>
+              <TextBlock Text="资源 / 光影" Style="{StaticResource CaptionText}" />
+              <TextBlock x:Name="StatPacks" Style="{StaticResource SectionTitle}"
+                         FontSize="20" Margin="0,6,0,0" />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="3" Style="{StaticResource CardTight}" Margin="6,0,0,0">
+            <StackPanel>
+              <TextBlock Text="分配内存" Style="{StaticResource CaptionText}" />
+              <TextBlock x:Name="StatMemory" Style="{StaticResource SectionTitle}"
+                         FontSize="20" Margin="0,6,0,0" />
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <!-- ── 游戏详情 ── -->
+        <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+          <StackPanel>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+
+              <StackPanel Grid.Column="0">
+                <TextBlock Text="游戏详情" Style="{StaticResource SectionTitle}" />
+                <TextBlock x:Name="DetailSubtitle" Style="{StaticResource CaptionText}"
+                           Margin="0,4,0,0" TextWrapping="Wrap" />
+              </StackPanel>
+
+              <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button Style="{StaticResource SubtleButton}" Content="打开游戏目录"
+                        Click="OpenGameDir_Click" ToolTip="在文件资源管理器里打开游戏目录" />
+                <Button x:Name="BtnVersionSettings" Style="{StaticResource SubtleButton}"
+                        Content="版本设置" Margin="8,0,0,0"
+                        ToolTip="跳到当前版本的设置页（隔离、Java、启动参数都在那）"
+                        Click="GoVersionSettings_Click" />
+              </StackPanel>
+            </Grid>
+
+            <Border Style="{StaticResource Divider}" Margin="0,14,0,14" />
+
+            <!--
+              两列表格：左列是字段名、右列是值。
+              用一个 Grid 逐行排，而不是嵌套 StackPanel —— 这样两列能严格对齐。
+            -->
+            <Grid x:Name="DetailTable">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="96" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="88" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="版本名"
+                         Style="{StaticResource CaptionText}" Margin="0,0,0,9" />
+              <TextBlock Grid.Row="0" Grid.Column="1" x:Name="DVersionName"
+                         Style="{StaticResource BodyText}" Margin="0,0,16,9"
+                         TextTrimming="CharacterEllipsis" />
+
+              <TextBlock Grid.Row="0" Grid.Column="2" Text="游戏版本"
+                         Style="{StaticResource CaptionText}" Margin="0,0,0,9" />
+              <TextBlock Grid.Row="0" Grid.Column="3" x:Name="DBaseVersion"
+                         Style="{StaticResource BodyText}" Margin="0,0,0,9"
+                         TextTrimming="CharacterEllipsis" />
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="加载器"
+                         Style="{StaticResource CaptionText}" Margin="0,0,0,9" />
+              <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DLoader"
+                         Style="{StaticResource BodyText}" Margin="0,0,16,9"
+                         TextTrimming="CharacterEllipsis" />
+
+              <TextBlock Grid.Row="1" Grid.Column="2" Text="Java"
+                         Style="{StaticResource CaptionText}" Margin="0,0,0,9" />
+              <TextBlock Grid.Row="1" Grid.Column="3" x:Name="DJava"
+                         Style="{StaticResource BodyText}" Margin="0,0,0,9"
+                         TextTrimming="CharacterEllipsis" />
+
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="资源目录"
+                         Style="{StaticResource CaptionText}" Margin="0,0,0,9" />
+              <TextBlock Grid.Row="2" Grid.Column="1" x:Name="DIsolation"
+                         Style="{StaticResource BodyText}" Margin="0,0,16,9"
+                         TextTrimming="CharacterEllipsis" />
+
+              <TextBlock Grid.Row="2" Grid.Column="2" Text="内存"
+                         Style="{StaticResource CaptionText}" Margin="0,0,0,9" />
+              <TextBlock Grid.Row="2" Grid.Column="3" x:Name="DMemory"
+                         Style="{StaticResource BodyText}" Margin="0,0,0,9"
+                         TextTrimming="CharacterEllipsis" />
+
+              <TextBlock Grid.Row="3" Grid.Column="0" Text="游戏目录"
+                         Style="{StaticResource CaptionText}" />
+              <TextBlock Grid.Row="3" Grid.Column="1" x:Name="DGameDir"
+                         Style="{StaticResource MonoText}" FontSize="11.5"
+                         Margin="0,0,16,0" TextTrimming="CharacterEllipsis"
+                         ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
+
+              <TextBlock Grid.Row="3" Grid.Column="2" Text="版本目录"
+                         Style="{StaticResource CaptionText}" />
+              <TextBlock Grid.Row="3" Grid.Column="3" x:Name="DVersionDir"
+                         Style="{StaticResource MonoText}" FontSize="11.5"
+                         TextTrimming="CharacterEllipsis"
+                         ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
+            </Grid>
+
+            <!-- 没装任何版本时顶掉上面那张表的提示 -->
+            <TextBlock x:Name="DetailEmpty" Style="{StaticResource SecondaryText}"
+                       Margin="0,4,0,0" TextWrapping="Wrap" Visibility="Collapsed"
+                       Text="还没有装任何版本。装好之后，这里会显示它的加载器、Java、内存和目录。" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ══ 启动面板（钉在最下面）═══════════════════════ -->
+    <Border Grid.Row="2" Style="{StaticResource Card}" Padding="24,18" Margin="0,12,0,0">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+          <TextBlock Text="要启动的版本" Style="{StaticResource CaptionText}" />
+          <TextBlock x:Name="BigName" Style="{StaticResource PageTitle}" Margin="0,6,0,0" />
+          <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+            <Border x:Name="LoaderChip" Style="{StaticResource Chip}">
+              <TextBlock x:Name="LoaderText" Style="{StaticResource ChipText}" />
+            </Border>
+            <Border x:Name="IsolatedChip" Style="{StaticResource Chip}" Margin="6,0,0,0"
+                    Visibility="Collapsed">
+              <TextBlock Text="独立目录" Style="{StaticResource ChipText}" />
+            </Border>
+          </StackPanel>
+          <TextBlock x:Name="InfoAccount" Style="{StaticResource SecondaryText}" Margin="0,10,0,0" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0,0,0">
+          <Button x:Name="BtnLaunch" Style="{StaticResource AccentButton}"
+                  Content="启动游戏" Padding="30,12" FontSize="15" MinHeight="46"
+                  Click="Launch_Click" />
+          <!--
+            启动按钮下方右侧放两个次级按钮，代替原来的版本下拉框：
+              版本设置 —— 直达当前版本的设置页（隔离、Java、参数都在那）
+              版本选择 —— 去「版本与资源」界面自己挑
+            选哪个版本启动由「上次玩过的」自动决定，启动前想临时换一个就走「版本选择」。
+          -->
+          <StackPanel Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Right">
+            <Button Style="{StaticResource SubtleButton}" Content="版本选择"
+                    ToolTip="去「版本与资源」挑一个要启动的版本"
+                    Click="GoVersions_Click" />
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</pages:PageBase>
