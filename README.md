@@ -2,7 +2,7 @@
 
 一个用 **C# / WPF** 从零手写的 Minecraft 启动器，界面 Windows 11 原生风格（云母材质 + Fluent 控件）。
 
-**当前版本 2.3.0** ／ 作者 laolong
+**当前版本 3.0.0** ／ 作者 laolong
 
 ---
 
